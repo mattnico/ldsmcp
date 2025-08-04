@@ -1,0 +1,15 @@
+src/
+.git/
+.gitignore
+tsconfig.json
+CLAUDE.md
+node_modules/
+*.log
+.DS_Store
+.env
+.env.local
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

@@ -1,0 +1,39 @@
+{
+  "name": "ldsmcp",
+  "version": "0.1.0",
+  "description": "MCP server for accessing LDS Church Gospel Library content",
+  "type": "module",
+  "main": "./build/index.js",
+  "bin": {
+    "ldsmcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x build/index.js",
+    "dev": "tsx watch src/index.ts",
+    "start": "node build/index.js",
+    "inspect": "npx @modelcontextprotocol/inspector node build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "lds",
+    "gospel-library"
+  ],
+  "author": "Matt Nicolaysen",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattnicolaysen/ldsmcp.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
