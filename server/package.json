@@ -1,7 +1,7 @@
 {
   "name": "ldsmcp",
   "version": "0.1.0",
-  "description": "MCP server for accessing LDS Church Gospel Library content",
+  "description": "Intelligent MCP server for searching and accessing LDS Church Gospel Library content with AI-powered routing",
   "type": "module",
   "main": "./build/index.js",
   "bin": {
@@ -11,20 +11,15 @@
     "build": "tsc && chmod +x build/index.js",
     "dev": "tsx watch src/index.ts",
     "start": "node build/index.js",
-    "inspect": "npx @modelcontextprotocol/inspector node build/index.js",
-    "test": "node simple-test.js",
-    "test:full": "node test-server.js",
-    "health-check": "node monitoring/health-check.js",
-    "docker:build": "docker build -t ldsmcp .",
-    "docker:run": "docker run -it --rm ldsmcp",
-    "docker:compose": "docker-compose up -d",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run test"
+    "inspect": "npx @modelcontextprotocol/inspector node build/index.js"
   },
   "keywords": [
     "mcp",
     "lds",
-    "gospel-library"
+    "gospel-library",
+    "search",
+    "ai-routing",
+    "intelligent-search"
   ],
   "author": "Matt Nicolaysen",
   "license": "MIT",
@@ -42,6 +37,6 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.9.2"
   }
 }

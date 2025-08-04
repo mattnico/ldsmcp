@@ -1,192 +1,149 @@
-# LDS MCP Server
+# Gospel Library MCP Server (DXT)
 
-An MCP (Model Context Protocol) server for accessing content from the Church of Jesus Christ of Latter-day Saints Gospel Library.
+Enhanced MCP server for accessing LDS Church Gospel Library content with intelligent search and database indexing capabilities.
 
-## Features
+## 🚀 **New Features**
 
-- **Fetch Content**: Retrieve any Gospel Library content by URI
-- **Search**: Search across scriptures, conference talks, manuals, and more
-- **Explore API**: Discover available endpoints and content types
-- **Resources**: Quick access to common content like latest conference talks and scriptures
+- **🗄️ Database Indexing**: SQLite-powered content indexing for reliable search
+- **🕷️ Intelligent Crawler**: Systematic discovery and indexing of Gospel Library content  
+- **🔍 Enhanced Search**: Full-text search with content type, speaker, and year filtering
+- **📊 Management Tools**: Database statistics, crawling control, and URI pattern search
 
-## Installation
+## 📦 Installation
 
+### Method 1: Claude Desktop Extension (Recommended)
+1. Download the `ldsmcp.dxt` file
+2. Open Claude Desktop
+3. Go to Extensions and click "Install Extension"
+4. Select the `ldsmcp.dxt` file
+5. The extension will install automatically
+
+### Method 2: Manual NPM Installation
 ```bash
-npm install
-npm run build
+npm install -g ldsmcp
 ```
 
-## Usage
+## 🛠️ Initial Setup
 
-### With Claude Desktop
+After installation, you need to populate the database with Gospel Library content:
 
-Add to your Claude Desktop configuration:
+1. **Quick Start (Recent Conferences)**:
+   ```
+   Use tool: crawl_content
+   Parameters: { "mode": "recent-conferences" }
+   ```
 
-```json
+2. **Full Index (Comprehensive)**:
+   ```
+   Use tool: crawl_content  
+   Parameters: { "mode": "full", "maxDepth": 8 }
+   ```
+
+3. **Check Progress**:
+   ```
+   Use tool: database_stats
+   ```
+
+## 🔧 Available Tools
+
+### Core Tools
+- **`fetch_content`** - Get content from specific Gospel Library URIs
+- **`search_gospel_library`** - Intelligent database-backed search with filters
+- **`browse_structure`** - Navigate Gospel Library hierarchy
+- **`fetch_media`** - Extract audio, video, and images from content
+
+### Database Management
+- **`database_stats`** - View indexing statistics and crawler status
+- **`crawl_content`** - Index Gospel Library content (full/incremental/recent)
+- **`search_uris`** - Advanced URI pattern and metadata search
+
+### Discovery Tools  
+- **`explore_endpoints`** - Discover and validate API endpoints
+
+## 📖 Usage Examples
+
+### Search for President Nelson's Recent Talk
+```javascript
+// After running initial crawl
 {
-  "mcpServers": {
-    "ldsmcp": {
-      "command": "node",
-      "args": ["/path/to/ldsmcp/build/index.js"]
-    }
+  "tool": "search_gospel_library",
+  "parameters": {
+    "query": "Confidence in the Presence of God",
+    "speaker": "Nelson",
+    "year": 2025
   }
 }
 ```
 
-### Testing with MCP Inspector
+### Browse 2025 General Conference
+```javascript
+{
+  "tool": "browse_structure", 
+  "parameters": {
+    "uri": "/general-conference/2025/04",
+    "depth": 2
+  }
+}
+```
 
+### Get Database Statistics
+```javascript
+{
+  "tool": "database_stats",
+  "parameters": {}
+}
+```
+
+## 🗃️ Database Location
+
+The SQLite database is created in the server working directory as `gospel_library.db`. This file contains:
+- Content metadata and URIs
+- Full-text search index
+- Navigation hierarchy
+- Crawler state and statistics
+
+## ⚡ Performance Notes
+
+- **First Time Setup**: Initial crawl may take 5-15 minutes depending on scope
+- **Incremental Updates**: Subsequent crawls are much faster (1-3 minutes)
+- **Search Performance**: Database queries are typically under 100ms
+- **Storage**: Full index requires ~10-50MB depending on content scope
+
+## 🛠️ Troubleshooting
+
+### Database Issues
+- Run `database_stats` to check index status
+- Use `crawl_content` with `mode: "incremental"` to refresh
+- Delete `gospel_library.db` to reset and re-crawl
+
+### Search Not Working
+- Ensure database is populated: `database_stats` should show > 0 records
+- Try `searchMode: "fallback"` for legacy search behavior
+- Check for recent conference content with targeted crawl
+
+### Performance Issues
+- Increase `delayMs` parameter in `crawl_content` to reduce API load
+- Use `mode: "incremental"` instead of `"full"` for updates
+- Consider `maxDepth` limit for large crawls
+
+## 📝 Development
+
+### Building from Source
 ```bash
-npm run inspect
-```
-
-## Available Tools
-
-### fetch_content
-Fetch any Gospel Library content by URI (returns actual readable text).
-
-**Parameters:**
-- `uri` (required): The content URI (e.g., "/scriptures/bofm/1-ne/1")
-- `lang` (optional): Language code (default: "eng")
-- `includeHtml` (optional): Include raw HTML (default: false)
-
-**Example:**
-```
-fetch_content uri="/general-conference/2024/10/15nelson"
-```
-
-### fetch_media
-Extract and fetch audio, video, and image media URLs from Gospel Library content.
-
-**Parameters:**
-- `uri` (required): The content URI (e.g., "/general-conference/2024/10/15nelson")
-- `lang` (optional): Language code (default: "eng")
-- `mediaType` (optional): Filter by media type - 'all', 'audio', 'video', 'image' (default: 'all')
-- `quality` (optional): Filter by quality - 'all', '1080p', '720p', '360p' (default: 'all')
-
-**Examples:**
-```
-fetch_media uri="/general-conference/2025/04/13holland"
-fetch_media uri="/general-conference/2025/04/13holland" mediaType="video" quality="1080p"
-fetch_media uri="/general-conference/2025/04/13holland" mediaType="audio"
-```
-
-**Enhanced Features:**
-- **Multiple Quality Levels**: Automatically finds 1080p, 720p, and 360p video versions
-- **Audio Support**: Detects MP3 audio in multiple bitrates (128k, 64k)
-- **Direct Downloads**: Provides download URLs with `?download=true` parameter
-- **Format Detection**: Supports MP4, M3U8 (streaming), MP3, and image formats
-
-### browse_structure
-Browse the hierarchical structure and navigation of Gospel Library content.
-
-**Parameters:**
-- `uri` (required): The URI to browse (e.g., "/general-conference/2024/10", "/scriptures/bofm")
-- `lang` (optional): Language code (default: "eng")
-- `depth` (optional): How deep to browse nested structures (default: 1, max: 3)
-
-**Example:**
-```
-browse_structure uri="/general-conference/2024/10" depth=2
-```
-
-### search_gospel_library
-Search for content across the Gospel Library.
-
-**Parameters:**
-- `query` (required): Search terms
-- `contentType` (optional): Filter by type (scriptures, general-conference, manuals, magazines)
-- `limit` (optional): Max results (default: 10)
-- `searchMode` (optional): 'content' for text search, 'structure' for metadata search, 'both' for combined (default: 'both')
-
-**Example:**
-```
-search_gospel_library query="faith" contentType="scriptures" searchMode="structure"
-```
-
-### explore_endpoints
-Discover available API endpoints.
-
-**Parameters:**
-- `baseUri` (optional): Starting URI for exploration
-- `patterns` (optional): Custom URI patterns to test
-- `depth` (optional): Exploration depth (default: 1)
-
-**Example:**
-```
-explore_endpoints baseUri="/scriptures"
-```
-
-## Available Resources
-
-- `gospel-library://conference/latest` - Latest General Conference
-- `gospel-library://scriptures/bofm` - Book of Mormon
-- `gospel-library://scriptures/dc-testament` - Doctrine and Covenants
-- `gospel-library://manual/come-follow-me` - Come, Follow Me materials
-- `gospel-library://navigation/conference-sessions` - Conference Sessions Navigator
-- `gospel-library://navigation/scripture-structure` - Scripture Structure Browser
-
-## Common URI Patterns
-
-### Scriptures
-- `/scriptures/bofm/1-ne/1` - 1 Nephi chapter 1
-- `/scriptures/dc-testament/dc/76` - D&C Section 76
-- `/scriptures/nt/matt/5` - Matthew chapter 5
-
-### General Conference
-- `/general-conference/2025/04` - April 2025 conference
-- `/general-conference/2025/04/13holland` - Specific talk
-
-### Manuals
-- `/manual/come-follow-me-for-individuals-and-families-book-of-mormon-2024`
-- `/study/manual/gospel-topics`
-
-## Development
-
-```bash
-# Run in development mode
-npm run dev
-
-# Build for production
+cd server/
+npm install
 npm run build
-
-# Test with MCP Inspector
-npm run inspect
 ```
 
-## API Information
-
-The Gospel Library API has two endpoint types:
-
-### Content Endpoint (for readable text)
+### Testing
+```bash
+npm run inspect  # Launch MCP Inspector
 ```
-https://www.churchofjesuschrist.org/study/api/v3/language-pages/type/content?lang=eng&uri={uri}
-```
-Returns the actual text content of articles, scriptures, and talks.
 
-### Dynamic Endpoint (for structure and navigation)
-```
-https://www.churchofjesuschrist.org/study/api/v3/language-pages/type/dynamic?lang=eng&uri={uri}
-```
-Returns hierarchical structure, table of contents, and metadata for navigation.
+## 📄 License
 
-**Key Differences:**
-- **Content**: Use for reading actual text (scriptures, talks, articles) and extracting media URLs
-- **Dynamic**: Use for browsing structure (conference sessions, scripture books, chapter lists)
-- **Performance**: Dynamic is faster for navigation since it doesn't include full text content
-- **Metadata**: Dynamic includes thumbnails, speakers, dates, and descriptions
-- **Media**: Audio, video, and image URLs are available in content endpoint metadata
+MIT License - see LICENSE file for details.
 
-## Media Support
+## 🤝 Contributing
 
-The MCP server can extract and provide direct access to:
-- **Audio**: Conference talk recordings, music, spoken content
-- **Video**: Conference sessions, instructional videos
-- **Images**: Illustrations, photographs, diagrams, thumbnails
-
-Media URLs are provided for direct access - no streaming through the MCP server itself.
-
-No authentication is required for either endpoint.
-
-## License
-
-MIT
+Issues and pull requests welcome at [GitHub repository](https://github.com/mattnicolaysen/ldsmcp).

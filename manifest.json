@@ -1,0 +1,93 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/dxt/main/dist/dxt-manifest.schema.json",
+  "dxt_version": "0.1",
+  "name": "gospel-library-mcp-server",
+  "display_name": "Gospel Library MCP Server",
+  "version": "0.5.0",
+  "description": "Intelligent MCP server for accessing LDS Church Gospel Library content with AI-powered search routing across 18+ specialized endpoints",
+  "author": {
+    "name": "Matt Nicolaysen",
+    "email": "matt@example.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/mattnicolaysen/ldsmcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattnicolaysen/ldsmcp.git"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "server/build/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/build/index.js"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "fetch_content",
+      "description": "Fetch specific content from the LDS Gospel Library by URI"
+    },
+    {
+      "name": "browse_structure",
+      "description": "Browse the hierarchical structure of Gospel Library content"
+    },
+    {
+      "name": "fetch_media",
+      "description": "Extract media URLs (audio, video, images) from Gospel Library content"
+    },
+    {
+      "name": "explore_endpoints",
+      "description": "Discover and validate API endpoints for Gospel Library URIs"
+    },
+    {
+      "name": "search_gospel_library", 
+      "description": "Intelligent search with AI-powered routing across all Gospel Library content"
+    },
+    {
+      "name": "search_general_conference",
+      "description": "Search General Conference talks with speaker and date filtering"
+    },
+    {
+      "name": "search_scriptures",
+      "description": "Verse-level search within scriptures with collection filtering"
+    },
+    {
+      "name": "search_archive",
+      "description": "Search across all Gospel Library collections with advanced filtering"
+    },
+    {
+      "name": "search_vertex",
+      "description": "Multi-type search (web, image, video, music, PDF) using Google Vertex AI"
+    },
+    {
+      "name": "search_come_follow_me",
+      "description": "Search Come, Follow Me study materials"
+    },
+    {
+      "name": "search_general_handbook",
+      "description": "Search General Handbook policies and procedures"
+    }
+  ],
+  "keywords": [
+    "mcp",
+    "lds",
+    "gospel-library",
+    "search",
+    "ai-routing",
+    "intelligent-search",
+    "vertex-ai",
+    "conference-talks",
+    "scriptures"
+  ],
+  "compatibility": {
+    "claude_desktop": ">=0.7.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}
