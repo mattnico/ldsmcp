@@ -1,5 +1,7 @@
 # Gospel Library MCP Server (DXT)
 
+[![Version](https://img.shields.io/badge/version-0.5.1-blue.svg)](https://github.com/mattnico/ldsmcp/releases)
+
 Intelligent MCP server for accessing LDS Church Gospel Library content with AI-powered search routing and comprehensive endpoint coverage.
 
 ## 🚀 **Key Features**
@@ -177,3 +179,17 @@ MIT License - see LICENSE file for details.
 ## 🤝 Contributing
 
 Issues and pull requests welcome at the [GitHub repository](https://github.com/mattnico/ldsmcp).
+
+## 📝 Changelog
+
+### Version 0.5.1 (Latest)
+- **New Feature**: Added dedicated `search_seminary` tool for seminary and institute manual search
+- **Enhancement**: Improved search intelligence to detect seminary queries and lesson numbers
+- **Enhancement**: Added support for seminary subject detection (OT, NT, Book of Mormon, D&C)
+- **Fix**: Seminary lesson queries now return actual lesson content instead of scripture sections
+
+### Version 0.5.0
+- Initial Desktop Extension (DXT) release
+- AI-powered search routing across 18+ Gospel Library endpoints
+- Comprehensive search tools for conference talks, scriptures, and manuals
+- Smart query analysis and content type detection

@@ -3,7 +3,7 @@
   "dxt_version": "0.1",
   "name": "gospel-library-mcp-server",
   "display_name": "Gospel Library MCP Server",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Intelligent MCP server for accessing LDS Church Gospel Library content with AI-powered search routing across 18+ specialized endpoints",
   "author": {
     "name": "Matt Nicolaysen",
@@ -70,6 +70,10 @@
     {
       "name": "search_general_handbook",
       "description": "Search General Handbook policies and procedures"
+    },
+    {
+      "name": "search_seminary",
+      "description": "Search seminary and institute manuals with lesson number support"
     }
   ],
   "keywords": [

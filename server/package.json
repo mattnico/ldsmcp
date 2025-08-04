@@ -1,6 +1,6 @@
 {
   "name": "ldsmcp",
-  "version": "0.1.0",
+  "version": "0.5.1",
   "description": "Intelligent MCP server for searching and accessing LDS Church Gospel Library content with AI-powered routing",
   "type": "module",
   "main": "./build/index.js",
