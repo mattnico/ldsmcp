@@ -10,7 +10,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { fetchContentTool } from "./tools/fetch.js";
-import { searchGospelLibraryTool } from "./tools/search.js";
+import { searchGospelLibraryTool, searchSeminaryTool } from "./tools/search.js";
 import { exploreEndpointsTool } from "./tools/explore.js";
 import { browseStructureTool } from "./tools/browse.js";
 import { fetchMediaTool } from "./tools/media.js";
@@ -50,6 +50,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       generalConferenceSearchTool.definition,
       scriptureSearchTool.definition,
       archiveSearchTool.definition,
+      searchSeminaryTool.definition,
       
       // Advanced search tools (for power users)
       vertexSearchTool.definition,
@@ -101,6 +102,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await scriptureSearchTool.handler(args as any);
       case "search_archive":
         return await archiveSearchTool.handler(args as any);
+      case "search_seminary":
+        return await searchSeminaryTool.handler(args as any);
       
       // Advanced search tools
       case "search_vertex":

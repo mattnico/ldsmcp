@@ -3,6 +3,8 @@ import { generalConferenceSearchTool } from "./search/general-conference-search.
 import { vertexSearchTool, comeFollowMeSearchTool, generalHandbookSearchTool } from "./search/vertex-search.js";
 import { archiveSearchTool, scriptureArchiveSearchTool, magazineArchiveSearchTool } from "./search/archive-search.js";
 import { scriptureSearchTool, bookOfMormonSearchTool, doctrineAndCovenantsSearchTool, bibleSearchTool } from "./search/scripture-search.js";
+import { SeminarySearch } from "./search/seminary-search.js";
+import { gospelLibraryClient } from "../api/client.js";
 
 interface SmartSearchArgs {
   query: string;
@@ -32,7 +34,7 @@ export const searchGospelLibraryTool = {
         forceEndpoint: {
           type: "string",
           description: "Force a specific search endpoint (use with searchMode='specific')",
-          enum: ["conference", "scriptures", "archive", "vertex", "come-follow-me", "handbook"]
+          enum: ["conference", "scriptures", "archive", "vertex", "come-follow-me", "handbook", "seminary"]
         },
         contentHint: {
           type: "string",
@@ -174,12 +176,86 @@ async function executeSpecificSearch(endpoint: string, query: string, params: an
       return await comeFollowMeSearchTool.handler({ query, limit });
     case 'search_general_handbook':
       return await generalHandbookSearchTool.handler({ query, limit });
+    case 'search_seminary':
+      return await executeSeminarySearch(searchParams);
     case 'search_scriptures_archive':
       return await scriptureArchiveSearchTool.handler(searchParams);
     case 'search_magazines_archive':
       return await magazineArchiveSearchTool.handler(searchParams);
     default:
       return await archiveSearchTool.handler({ query });
+  }
+}
+
+// Seminary search execution helper
+async function executeSeminarySearch(params: any) {
+  try {
+    const seminarySearch = new SeminarySearch(gospelLibraryClient);
+    
+    const result = await seminarySearch.searchSeminary({
+      query: params.query,
+      lessonNumber: params.lessonNumber,
+      subject: params.subject,
+      start: 1,
+      limit: params.limit || 20
+    });
+    
+    if (result.error) {
+      return {
+        content: [{
+          type: "text",
+          text: `# Seminary Manual Search\n\n**Error:** ${result.error.message}\n\nTry using broader search terms or check if the lesson number exists.`
+        }]
+      };
+    }
+    
+    if (result.results.length === 0) {
+      return {
+        content: [{
+          type: "text",
+          text: `# Seminary Manual Search\n\n**Query:** ${params.query}\n\nNo seminary manual content found for this query.\n\n**Suggestions:**\n- Try searching without quotes for broader results\n- Include terms like "seminary", "lesson", or specific subjects\n- Try lesson numbers like "lesson 107" or "lesson 25"`
+        }]
+      };
+    }
+    
+    let resultText = `# Seminary Manual Search Results\n\n`;
+    resultText += `**Query:** ${params.query}\n`;
+    if (params.lessonNumber) resultText += `**Lesson Number:** ${params.lessonNumber}\n`;
+    if (params.subject) resultText += `**Subject:** ${params.subject.replace('-', ' ')}\n`;
+    resultText += `**Found:** ${result.results.length} results\n\n`;
+    
+    result.results.forEach((item, index) => {
+      resultText += `## ${index + 1}. ${item.title}\n\n`;
+      if (item.metadata.lessonNumber) {
+        resultText += `**Lesson:** ${item.metadata.lessonNumber} | `;
+      }
+      if (item.metadata.subject) {
+        resultText += `**Subject:** ${item.metadata.subject.replace('-', ' ')} | `;
+      }
+      if (item.metadata.manualType) {
+        resultText += `**Type:** ${item.metadata.manualType} manual | `;
+      }
+      resultText += `**Manual:** ${item.metadata.manual}\n`;
+      resultText += `**URI:** ${item.uri}\n`;
+      resultText += `**Link:** ${item.link}\n\n`;
+      resultText += `${item.snippet}\n\n`;
+      resultText += `---\n\n`;
+    });
+    
+    return {
+      content: [{
+        type: "text",
+        text: resultText
+      }]
+    };
+    
+  } catch (error) {
+    return {
+      content: [{
+        type: "text",
+        text: `# Seminary Manual Search Error\n\n${error instanceof Error ? error.message : String(error)}`
+      }]
+    };
   }
 }
 
@@ -253,3 +329,48 @@ async function executeComprehensiveSearch(query: string, intent: any, limit: num
     };
   }
 }
+
+// Dedicated Seminary Search Tool
+export const searchSeminaryTool = {
+  definition: {
+    name: "search_seminary",
+    description: "Search seminary and institute manuals for lesson plans, teaching materials, and curriculum resources",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "Search query - include terms like 'lesson 107', 'seminary manual', or specific topics"
+        },
+        lessonNumber: {
+          type: "number",
+          description: "Specific lesson number (e.g., 107 for Lesson 107)",
+          minimum: 1,
+          maximum: 200
+        },
+        subject: {
+          type: "string",
+          description: "Seminary subject/curriculum",
+          enum: ["old-testament", "new-testament", "book-of-mormon", "doctrine-and-covenants"]
+        },
+        manualType: {
+          type: "string",
+          description: "Type of manual to search",
+          enum: ["teacher", "student", "both"],
+          default: "both"
+        },
+        limit: {
+          type: "number",
+          description: "Maximum number of results (default: 20)",
+          minimum: 1,
+          maximum: 50,
+          default: 20
+        }
+      },
+      required: ["query"]
+    }
+  },
+  handler: async (args: any) => {
+    return await executeSeminarySearch(args);
+  }
+};

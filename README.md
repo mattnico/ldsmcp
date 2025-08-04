@@ -39,6 +39,7 @@ npm run build
 - **`search_general_conference`** - Conference talks with speaker/date filtering
 - **`search_scriptures`** - Verse-level scripture search with collection filtering  
 - **`search_archive`** - Comprehensive search across all Gospel Library content
+- **`search_seminary`** - Seminary and institute manual search with lesson number support
 - **`search_vertex`** - Multi-type search (web, image, video, music, PDF)
 
 ### Content Tools
@@ -90,6 +91,29 @@ npm run build
   "parameters": {
     "query": "faith hope charity",
     "collectionName": "The Book of Mormon"
+  }
+}
+```
+
+### Seminary Lesson Planning
+```javascript
+{
+  "tool": "search_seminary",
+  "parameters": {
+    "query": "lesson 107",
+    "subject": "doctrine-and-covenants",
+    "lessonNumber": 107
+  }
+}
+```
+
+### Smart Search for Seminary Content
+```javascript
+{
+  "tool": "search_gospel_library",
+  "parameters": {
+    "query": "seminary lesson 107 D&C manual teaching ideas",
+    "searchMode": "smart"
   }
 }
 ```

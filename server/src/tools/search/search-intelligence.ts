@@ -41,7 +41,8 @@ export class SearchIntelligence {
   // Manual/handbook terms
   private static manualTerms = [
     'come follow me', 'general handbook', 'for the strength of youth', 'handbook',
-    'lesson', 'manual', 'curriculum', 'teaching', 'study guide'
+    'lesson', 'manual', 'curriculum', 'teaching', 'study guide', 'seminary', 'institute',
+    'seminary manual', 'institute manual', 'teacher manual', 'student manual'
   ];
 
   // Date terms
@@ -144,6 +145,18 @@ export class SearchIntelligence {
           suggestedParams: { query },
           fallbackEndpoints: ['search_vertex', 'search_archive'], 
           reasoning: 'Query mentions General Handbook or policy-related terms'
+        };
+      } else if (manualType === 'seminary') {
+        return {
+          primaryEndpoint: 'search_seminary',
+          confidence: 0.85,
+          suggestedParams: { 
+            query,
+            lessonNumber: this.detectLessonNumber(query),
+            subject: this.detectSeminarySubject(query)
+          },
+          fallbackEndpoints: ['search_vertex', 'search_archive'],
+          reasoning: 'Query mentions seminary or institute manual content'
         };
       } else {
         return {
@@ -331,6 +344,9 @@ export class SearchIntelligence {
     if (lowerQuery.includes('for the strength of youth')) {
       return 'ftsoy';
     }
+    if (lowerQuery.includes('seminary') || lowerQuery.includes('institute')) {
+      return 'seminary';
+    }
     return undefined;
   }
 
@@ -388,6 +404,54 @@ export class SearchIntelligence {
       case 'manual': return 45; // Other
       default: return undefined; // All collections
     }
+  }
+
+  private static detectLessonNumber(query: string): number | undefined {
+    // Match patterns like "lesson 107", "lesson107", "#107"
+    const lessonPatterns = [
+      /lesson\s*(\d+)/i,
+      /#(\d+)/,
+      /\bL(\d+)\b/i
+    ];
+    
+    for (const pattern of lessonPatterns) {
+      const match = query.match(pattern);
+      if (match) {
+        return parseInt(match[1]);
+      }
+    }
+    return undefined;
+  }
+
+  private static detectSeminarySubject(query: string): string | undefined {
+    const lowerQuery = query.toLowerCase();
+    
+    // Scripture-based seminary subjects
+    if (lowerQuery.includes('old testament') || lowerQuery.includes('ot')) {
+      return 'old-testament';
+    }
+    if (lowerQuery.includes('new testament') || lowerQuery.includes('nt')) {
+      return 'new-testament';
+    }
+    if (lowerQuery.includes('book of mormon') || lowerQuery.includes('bofm')) {
+      return 'book-of-mormon';
+    }
+    if (lowerQuery.includes('doctrine and covenants') || lowerQuery.includes('d&c') || lowerQuery.includes('dc')) {
+      return 'doctrine-and-covenants';
+    }
+    
+    // Auto-detect from scripture book references
+    if (['genesis', 'exodus', 'psalms', 'isaiah'].some(book => lowerQuery.includes(book))) {
+      return 'old-testament';
+    }
+    if (['matthew', 'mark', 'luke', 'john', 'romans', 'revelation'].some(book => lowerQuery.includes(book))) {
+      return 'new-testament';
+    }
+    if (['nephi', 'alma', 'mosiah', 'helaman', 'mormon', 'ether'].some(book => lowerQuery.includes(book))) {
+      return 'book-of-mormon';
+    }
+    
+    return undefined;
   }
 
   private static suggestFilters(query: string): any {
