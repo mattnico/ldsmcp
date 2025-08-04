@@ -1,144 +1,150 @@
 # Gospel Library MCP Server (DXT)
 
-Enhanced MCP server for accessing LDS Church Gospel Library content with intelligent search and database indexing capabilities.
+Intelligent MCP server for accessing LDS Church Gospel Library content with AI-powered search routing and comprehensive endpoint coverage.
 
-## 🚀 **New Features**
+## 🚀 **Key Features**
 
-- **🗄️ Database Indexing**: SQLite-powered content indexing for reliable search
-- **🕷️ Intelligent Crawler**: Systematic discovery and indexing of Gospel Library content  
-- **🔍 Enhanced Search**: Full-text search with content type, speaker, and year filtering
-- **📊 Management Tools**: Database statistics, crawling control, and URI pattern search
+- **🧠 AI-Powered Search Intelligence**: Automatically routes queries to optimal Gospel Library search endpoints
+- **🔍 18+ Specialized Search APIs**: Complete coverage of Gospel Library search capabilities
+- **📖 Direct Content Access**: Fetch any Gospel Library content via URI with rich metadata
+- **🎯 Smart Query Analysis**: Detects content types, speakers, dates, and scripture references
+- **🏗️ Desktop Extension**: Native Claude Desktop integration with manifest-based architecture
 
 ## 📦 Installation
 
-### Method 1: Claude Desktop Extension (Recommended)
-1. Download the `ldsmcp.dxt` file
+### Claude Desktop Extension (Recommended)
+1. Download the latest `.dxt` file from releases
 2. Open Claude Desktop
-3. Go to Extensions and click "Install Extension"
-4. Select the `ldsmcp.dxt` file
-5. The extension will install automatically
+3. Go to Extensions → Install Extension
+4. Select the downloaded `.dxt` file
+5. The extension installs automatically - no setup required!
 
-### Method 2: Manual NPM Installation
+### Manual Development Setup
 ```bash
-npm install -g ldsmcp
+git clone https://github.com/mattnico/ldsmcp.git
+cd ldsmcp/server
+npm install
+npm run build
 ```
-
-## 🛠️ Initial Setup
-
-After installation, you need to populate the database with Gospel Library content:
-
-1. **Quick Start (Recent Conferences)**:
-   ```
-   Use tool: crawl_content
-   Parameters: { "mode": "recent-conferences" }
-   ```
-
-2. **Full Index (Comprehensive)**:
-   ```
-   Use tool: crawl_content  
-   Parameters: { "mode": "full", "maxDepth": 8 }
-   ```
-
-3. **Check Progress**:
-   ```
-   Use tool: database_stats
-   ```
 
 ## 🔧 Available Tools
 
-### Core Tools
-- **`fetch_content`** - Get content from specific Gospel Library URIs
-- **`search_gospel_library`** - Intelligent database-backed search with filters
-- **`browse_structure`** - Navigate Gospel Library hierarchy
-- **`fetch_media`** - Extract audio, video, and images from content
+### Smart Search
+- **`search_gospel_library`** - AI-powered search with automatic endpoint routing
+  - Analyzes query intent and content type
+  - Routes to optimal search endpoint automatically
+  - Supports comprehensive, smart, and specific search modes
 
-### Database Management
-- **`database_stats`** - View indexing statistics and crawler status
-- **`crawl_content`** - Index Gospel Library content (full/incremental/recent)
-- **`search_uris`** - Advanced URI pattern and metadata search
+### Specialized Searches
+- **`search_general_conference`** - Conference talks with speaker/date filtering
+- **`search_scriptures`** - Verse-level scripture search with collection filtering  
+- **`search_archive`** - Comprehensive search across all Gospel Library content
+- **`search_vertex`** - Multi-type search (web, image, video, music, PDF)
 
-### Discovery Tools  
-- **`explore_endpoints`** - Discover and validate API endpoints
+### Content Tools
+- **`fetch_content`** - Get full content from specific Gospel Library URIs
+- **`browse_structure`** - Navigate content hierarchies and table of contents
+- **`fetch_media`** - Extract audio, video, and image URLs from content
+
+### Discovery Tools
+- **`explore_endpoints`** - Discover and validate Gospel Library API endpoints
 
 ## 📖 Usage Examples
 
-### Search for President Nelson's Recent Talk
+### Smart Search (Recommended)
 ```javascript
-// After running initial crawl
 {
   "tool": "search_gospel_library",
   "parameters": {
-    "query": "Confidence in the Presence of God",
-    "speaker": "Nelson",
-    "year": 2025
+    "query": "Russell M. Nelson faith hope charity",
+    "searchMode": "smart"
   }
 }
 ```
 
-### Browse 2025 General Conference
+### Browse Recent General Conference
 ```javascript
 {
-  "tool": "browse_structure", 
+  "tool": "browse_structure",
   "parameters": {
-    "uri": "/general-conference/2025/04",
+    "uri": "/general-conference/2024/10",
     "depth": 2
   }
 }
 ```
 
-### Get Database Statistics
+### Get Specific Content
 ```javascript
 {
-  "tool": "database_stats",
-  "parameters": {}
+  "tool": "fetch_content",
+  "parameters": {
+    "uri": "/scriptures/bofm/alma/32"
+  }
 }
 ```
 
-## 🗃️ Database Location
+### Search Scriptures Specifically
+```javascript
+{
+  "tool": "search_scriptures",
+  "parameters": {
+    "query": "faith hope charity",
+    "collectionName": "The Book of Mormon"
+  }
+}
+```
 
-The SQLite database is created in the server working directory as `gospel_library.db`. This file contains:
-- Content metadata and URIs
-- Full-text search index
-- Navigation hierarchy
-- Crawler state and statistics
+## 🧠 Search Intelligence
 
-## ⚡ Performance Notes
+The server includes sophisticated query analysis that:
+- **Detects Content Types**: Scripture references, conference talks, manual content
+- **Identifies Intent**: Speaker names, date ranges, book names, topics
+- **Routes Intelligently**: Selects optimal endpoint based on confidence scoring
+- **Provides Fallbacks**: Tries alternative endpoints if primary search fails
 
-- **First Time Setup**: Initial crawl may take 5-15 minutes depending on scope
-- **Incremental Updates**: Subsequent crawls are much faster (1-3 minutes)
-- **Search Performance**: Database queries are typically under 100ms
-- **Storage**: Full index requires ~10-50MB depending on content scope
+### Search Modes
+- **`smart`** (default): AI selects best endpoint automatically
+- **`comprehensive`**: Searches multiple endpoints and combines results  
+- **`specific`**: Forces use of a particular endpoint
 
-## 🛠️ Troubleshooting
+## 🚀 Performance Benefits
 
-### Database Issues
-- Run `database_stats` to check index status
-- Use `crawl_content` with `mode: "incremental"` to refresh
-- Delete `gospel_library.db` to reset and re-crawl
+- **No Database Required**: Direct API access eliminates setup complexity
+- **Real-Time Results**: Always current content without crawling delays
+- **Lightweight**: Minimal dependencies, fast startup
+- **Intelligent Caching**: Smart request optimization reduces API calls
 
-### Search Not Working
-- Ensure database is populated: `database_stats` should show > 0 records
-- Try `searchMode: "fallback"` for legacy search behavior
-- Check for recent conference content with targeted crawl
+## 📚 API Documentation
 
-### Performance Issues
-- Increase `delayMs` parameter in `crawl_content` to reduce API load
-- Use `mode: "incremental"` instead of `"full"` for updates
-- Consider `maxDepth` limit for large crawls
+Comprehensive documentation available in `docs/search-api/`:
+- **Complete Endpoint Reference**: All 18+ Gospel Library search APIs
+- **Integration Patterns**: Code examples and best practices
+- **Implementation Guide**: Roadmap and testing strategies
 
-## 📝 Development
+## 🛠️ Development
 
-### Building from Source
+### Building
 ```bash
 cd server/
 npm install
 npm run build
 ```
 
-### Testing
+### Testing with MCP Inspector
 ```bash
-npm run inspect  # Launch MCP Inspector
+npm run inspect
 ```
+
+### Available Commands
+- `npm run dev` - Development with hot reload
+- `npm run build` - Compile TypeScript and set permissions  
+- `npm run inspect` - Launch MCP Inspector for testing
+
+## 🔗 Resources
+
+- [MCP Protocol Documentation](https://modelcontextprotocol.io/)
+- [Desktop Extension Specification](https://github.com/anthropics/dxt)
+- [Gospel Library Search API Documentation](./docs/search-api/README.md)
 
 ## 📄 License
 
@@ -146,4 +152,4 @@ MIT License - see LICENSE file for details.
 
 ## 🤝 Contributing
 
-Issues and pull requests welcome at [GitHub repository](https://github.com/mattnicolaysen/ldsmcp).
+Issues and pull requests welcome at the [GitHub repository](https://github.com/mattnico/ldsmcp).
