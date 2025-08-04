@@ -3,7 +3,7 @@
   "dxt_version": "0.1",
   "name": "gospel-library-mcp-server",
   "display_name": "Gospel Library MCP Server",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Intelligent MCP server for accessing LDS Church Gospel Library content with AI-powered search routing across 18+ specialized endpoints",
   "author": {
     "name": "Matt Nicolaysen",
@@ -17,10 +17,10 @@
   },
   "server": {
     "type": "node",
-    "entry_point": "server/build/index.js",
+    "entry_point": "server/build/index-manual.js",
     "mcp_config": {
       "command": "node",
-      "args": ["${__dirname}/server/build/index.js"],
+      "args": ["${__dirname}/server/build/index-manual.js"],
       "env": {
         "NODE_ENV": "production"
       }
