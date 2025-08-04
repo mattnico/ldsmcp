@@ -16,7 +16,9 @@ When testing tools during development, use the MCP Inspector:
 npm run inspect
 # Then use the inspector UI to test individual tools like:
 # - fetch_content with uri="/scriptures/bofm/1-ne/1"
-# - search_gospel_library with query="faith"
+# - fetch_media with uri="/general-conference/2024/10/15nelson" mediaType="audio"
+# - browse_structure with uri="/general-conference/2024/10" depth=2
+# - search_gospel_library with query="faith" searchMode="structure"
 # - explore_endpoints with baseUri="/scriptures"
 ```
 
@@ -37,18 +39,35 @@ This is a Model Context Protocol (MCP) server that exposes Gospel Library conten
    - Each tool exports an object with `definition` and `handler` properties
    - Tools use `args as any` type assertion in index.ts due to MCP SDK typing constraints
    - All tools return standardized MCP response format with content array
+   - `fetch_media` tool extracts audio/video/image URLs from both metadata and HTML content
 
 3. **Resource System (`src/resources/content.ts`)**
    - Provides predefined URIs for common content (latest conference, scriptures)
    - Resources use custom URI scheme: `gospel-library://`
    - Read operations fetch and cache content on demand
 
-### API Response Structure
-The Gospel Library API returns JSON with:
+### API Endpoint Types and Response Structures
+
+#### Content Endpoint (`/type/content`)
+Returns actual readable text content:
 - `meta`: Contains title, contentType, publication info, media URLs
 - `content.body`: HTML content of the document
 - `content.footnotes`: Array of scripture references and notes
 - `error`: Present only on failures
+
+#### Dynamic Endpoint (`/type/dynamic`)  
+Returns structured navigation and metadata:
+- `content`: Hierarchical object with organized content items
+- `toc`: Table of contents structure
+- `pids`: Resource identifiers
+- `uri`: Original request URI
+- `verified`/`restricted`: Status flags
+- `error`: Present only on failures
+
+#### When to Use Each Type
+- **Content**: For `fetch_content` tool - getting readable text of specific items
+- **Dynamic**: For `browse_structure` tool - exploring navigation structure
+- **Search**: Enhanced search uses both endpoints for comprehensive results
 
 ### URI Patterns
 URIs follow predictable patterns:

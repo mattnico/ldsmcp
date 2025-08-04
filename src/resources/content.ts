@@ -33,6 +33,18 @@ const PREDEFINED_RESOURCES: ContentResource[] = [
     description: "Come, Follow Me study materials",
     mimeType: "text/plain",
   },
+  {
+    uri: "gospel-library://navigation/conference-sessions",
+    name: "Conference Sessions Navigator",
+    description: "Browse General Conference sessions and talks by date",
+    mimeType: "text/plain",
+  },
+  {
+    uri: "gospel-library://navigation/scripture-structure",
+    name: "Scripture Structure Browser",
+    description: "Navigate scripture books, chapters, and sections",
+    mimeType: "text/plain",
+  },
 ];
 
 export const contentResources = {
@@ -130,6 +142,52 @@ export const contentResources = {
             const preview = gospelLibraryClient.parseHtmlContent(manualResponse.content.body);
             content += preview.substring(0, 1000) + "...";
           }
+          break;
+
+        case "gospel-library://navigation/conference-sessions":
+          content = `# Conference Sessions Navigator\n\n`;
+          content += `Use the \`browse_structure\` tool to navigate General Conference sessions:\n\n`;
+          
+          // Get current and recent conferences
+          const nowConf = new Date();
+          const currentYearConf = nowConf.getFullYear();
+          const years = [currentYearConf, currentYearConf - 1, currentYearConf - 2];
+          
+          content += `## Available Conferences\n\n`;
+          years.forEach(year => {
+            content += `### ${year}\n`;
+            content += `- **April ${year}**: \`browse_structure uri="/general-conference/${year}/04"\`\n`;
+            content += `- **October ${year}**: \`browse_structure uri="/general-conference/${year}/10"\`\n\n`;
+          });
+          
+          content += `## Example Usage\n`;
+          content += `- Browse April 2024 sessions: \`browse_structure uri="/general-conference/2024/04"\`\n`;
+          content += `- Find talks by President Nelson: \`search_gospel_library query="Nelson" contentType="general-conference" searchMode="structure"\`\n`;
+          break;
+
+        case "gospel-library://navigation/scripture-structure":
+          content = `# Scripture Structure Browser\n\n`;
+          content += `Navigate scripture books and chapters using the \`browse_structure\` tool:\n\n`;
+          
+          content += `## Standard Works\n\n`;
+          content += `### Book of Mormon\n`;
+          content += `- Browse books: \`browse_structure uri="/scriptures/bofm"\`\n`;
+          content += `- 1 Nephi chapters: \`browse_structure uri="/scriptures/bofm/1-ne"\`\n`;
+          content += `- Alma chapters: \`browse_structure uri="/scriptures/bofm/alma"\`\n\n`;
+          
+          content += `### Doctrine and Covenants\n`;
+          content += `- Browse sections: \`browse_structure uri="/scriptures/dc-testament"\`\n\n`;
+          
+          content += `### Bible\n`;
+          content += `- Old Testament: \`browse_structure uri="/scriptures/ot"\`\n`;
+          content += `- New Testament: \`browse_structure uri="/scriptures/nt"\`\n\n`;
+          
+          content += `### Pearl of Great Price\n`;
+          content += `- Browse books: \`browse_structure uri="/scriptures/pgp"\`\n\n`;
+          
+          content += `## Example Usage\n`;
+          content += `- Get Book of Mormon structure: \`browse_structure uri="/scriptures/bofm" depth=2\`\n`;
+          content += `- Find chapters about faith: \`search_gospel_library query="faith" contentType="scriptures" searchMode="structure"\`\n`;
           break;
       }
 

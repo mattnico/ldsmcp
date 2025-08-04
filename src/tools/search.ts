@@ -5,6 +5,7 @@ interface SearchArgs {
   query: string;
   contentType?: string;
   limit?: number;
+  searchMode?: 'content' | 'structure' | 'both';
 }
 
 const COMMON_SEARCH_PATTERNS = [
@@ -35,12 +36,18 @@ export const searchGospelLibraryTool = {
           description: "Maximum number of results to return (default: 10)",
           default: 10,
         },
+        searchMode: {
+          type: "string",
+          description: "Search mode: 'content' for text search, 'structure' for metadata search, 'both' for combined (default: 'both')",
+          enum: ["content", "structure", "both"],
+          default: "both",
+        },
       },
       required: ["query"],
     },
   },
   handler: async (args: SearchArgs) => {
-    const { query, contentType, limit = 10 } = args;
+    const { query, contentType, limit = 10, searchMode = 'both' } = args;
     const results: SearchResult[] = [];
     const searchTerms = query.toLowerCase().split(' ');
 
@@ -49,38 +56,92 @@ export const searchGospelLibraryTool = {
         ? COMMON_SEARCH_PATTERNS.filter(p => p.type === contentType)
         : COMMON_SEARCH_PATTERNS;
 
-      for (const patternGroup of searchPatterns) {
-        for (const pattern of patternGroup.patterns) {
-          const response = await gospelLibraryClient.fetchContent(pattern);
-          
-          if (!response.error && response.content?.body) {
-            const plainText = gospelLibraryClient.parseHtmlContent(response.content.body);
-            const lowerText = plainText.toLowerCase();
+      // Search using dynamic endpoints for structure/metadata
+      if (searchMode === 'structure' || searchMode === 'both') {
+        for (const patternGroup of searchPatterns) {
+          for (const pattern of patternGroup.patterns) {
+            const dynamicResponse = await gospelLibraryClient.fetchDynamic(pattern);
             
-            const matchesQuery = searchTerms.every((term: string) => lowerText.includes(term));
-            
-            if (matchesQuery) {
-              const matchIndex = lowerText.indexOf(searchTerms[0]);
-              const snippetStart = Math.max(0, matchIndex - 100);
-              const snippetEnd = Math.min(plainText.length, matchIndex + 200);
-              const snippet = plainText.substring(snippetStart, snippetEnd);
+            if (!dynamicResponse.error && dynamicResponse.content) {
+              const structureResults = gospelLibraryClient.parseDynamicContent(dynamicResponse);
               
-              results.push({
-                title: response.meta?.title || 'Untitled',
-                uri: pattern,
-                snippet: snippet,
-                type: patternGroup.type,
-              });
+              for (const item of structureResults) {
+                const titleMatches = searchTerms.some((term: string) => 
+                  item.title.toLowerCase().includes(term)
+                );
+                const descriptionMatches = item.description && searchTerms.some((term: string) => 
+                  item.description!.toLowerCase().includes(term)
+                );
+                const speakerMatches = item.metadata?.speaker && searchTerms.some((term: string) => 
+                  item.metadata!.speaker!.toLowerCase().includes(term)
+                );
+                
+                if (titleMatches || descriptionMatches || speakerMatches) {
+                  results.push({
+                    title: item.title,
+                    uri: item.uri,
+                    snippet: item.description || `${item.type} in ${patternGroup.type}`,
+                    type: `${patternGroup.type}-${item.type}`,
+                  });
+                  
+                  if (results.length >= limit) {
+                    break;
+                  }
+                }
+              }
+            }
+            
+            if (results.length >= limit) {
+              break;
+            }
+          }
+          
+          if (results.length >= limit) {
+            break;
+          }
+        }
+      }
 
-              if (results.length >= limit) {
-                break;
+      // Search using content endpoints for text content (if not enough results from structure search)
+      if ((searchMode === 'content' || searchMode === 'both') && results.length < limit) {
+        const remainingLimit = limit - results.length;
+        
+        for (const patternGroup of searchPatterns) {
+          for (const pattern of patternGroup.patterns) {
+            // Skip if we already found this URI in structure search
+            if (results.some(r => r.uri === pattern)) continue;
+            
+            const response = await gospelLibraryClient.fetchContent(pattern);
+            
+            if (!response.error && response.content?.body) {
+              const plainText = gospelLibraryClient.parseHtmlContent(response.content.body);
+              const lowerText = plainText.toLowerCase();
+              
+              const matchesQuery = searchTerms.every((term: string) => lowerText.includes(term));
+              
+              if (matchesQuery) {
+                const matchIndex = lowerText.indexOf(searchTerms[0]);
+                const snippetStart = Math.max(0, matchIndex - 100);
+                const snippetEnd = Math.min(plainText.length, matchIndex + 200);
+                const snippet = plainText.substring(snippetStart, snippetEnd);
+                
+                results.push({
+                  title: response.meta?.title || 'Untitled',
+                  uri: pattern,
+                  snippet: snippet,
+                  type: `${patternGroup.type}-content`,
+                });
+
+                if (results.length >= limit) {
+                  break;
+                }
               }
             }
           }
-        }
-        
-        if (results.length >= limit) {
-          break;
+          
+          if (results.length >= limit) {
+            break;
+          }
         }
       }
 

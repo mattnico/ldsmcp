@@ -5,8 +5,20 @@ dist/
 .DS_Store
 .env
 .env.local
+.env.production
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# CI/CD
+.github/secrets/
+
+# Monitoring
+monitoring/logs/
+monitoring/metrics/

@@ -42,7 +42,7 @@ npm run inspect
 ## Available Tools
 
 ### fetch_content
-Fetch any Gospel Library content by URI.
+Fetch any Gospel Library content by URI (returns actual readable text).
 
 **Parameters:**
 - `uri` (required): The content URI (e.g., "/scriptures/bofm/1-ne/1")
@@ -51,7 +51,42 @@ Fetch any Gospel Library content by URI.
 
 **Example:**
 ```
-fetch_content uri="/general-conference/2025/04/13holland"
+fetch_content uri="/general-conference/2024/10/15nelson"
+```
+
+### fetch_media
+Extract and fetch audio, video, and image media URLs from Gospel Library content.
+
+**Parameters:**
+- `uri` (required): The content URI (e.g., "/general-conference/2024/10/15nelson")
+- `lang` (optional): Language code (default: "eng")
+- `mediaType` (optional): Filter by media type - 'all', 'audio', 'video', 'image' (default: 'all')
+- `quality` (optional): Filter by quality - 'all', '1080p', '720p', '360p' (default: 'all')
+
+**Examples:**
+```
+fetch_media uri="/general-conference/2025/04/13holland"
+fetch_media uri="/general-conference/2025/04/13holland" mediaType="video" quality="1080p"
+fetch_media uri="/general-conference/2025/04/13holland" mediaType="audio"
+```
+
+**Enhanced Features:**
+- **Multiple Quality Levels**: Automatically finds 1080p, 720p, and 360p video versions
+- **Audio Support**: Detects MP3 audio in multiple bitrates (128k, 64k)
+- **Direct Downloads**: Provides download URLs with `?download=true` parameter
+- **Format Detection**: Supports MP4, M3U8 (streaming), MP3, and image formats
+
+### browse_structure
+Browse the hierarchical structure and navigation of Gospel Library content.
+
+**Parameters:**
+- `uri` (required): The URI to browse (e.g., "/general-conference/2024/10", "/scriptures/bofm")
+- `lang` (optional): Language code (default: "eng")
+- `depth` (optional): How deep to browse nested structures (default: 1, max: 3)
+
+**Example:**
+```
+browse_structure uri="/general-conference/2024/10" depth=2
 ```
 
 ### search_gospel_library
@@ -61,10 +96,11 @@ Search for content across the Gospel Library.
 - `query` (required): Search terms
 - `contentType` (optional): Filter by type (scriptures, general-conference, manuals, magazines)
 - `limit` (optional): Max results (default: 10)
+- `searchMode` (optional): 'content' for text search, 'structure' for metadata search, 'both' for combined (default: 'both')
 
 **Example:**
 ```
-search_gospel_library query="faith" contentType="scriptures"
+search_gospel_library query="faith" contentType="scriptures" searchMode="structure"
 ```
 
 ### explore_endpoints
@@ -86,6 +122,8 @@ explore_endpoints baseUri="/scriptures"
 - `gospel-library://scriptures/bofm` - Book of Mormon
 - `gospel-library://scriptures/dc-testament` - Doctrine and Covenants
 - `gospel-library://manual/come-follow-me` - Come, Follow Me materials
+- `gospel-library://navigation/conference-sessions` - Conference Sessions Navigator
+- `gospel-library://navigation/scripture-structure` - Scripture Structure Browser
 
 ## Common URI Patterns
 
@@ -117,12 +155,37 @@ npm run inspect
 
 ## API Information
 
-The Gospel Library API endpoint:
+The Gospel Library API has two endpoint types:
+
+### Content Endpoint (for readable text)
 ```
 https://www.churchofjesuschrist.org/study/api/v3/language-pages/type/content?lang=eng&uri={uri}
 ```
+Returns the actual text content of articles, scriptures, and talks.
 
-No authentication is required.
+### Dynamic Endpoint (for structure and navigation)
+```
+https://www.churchofjesuschrist.org/study/api/v3/language-pages/type/dynamic?lang=eng&uri={uri}
+```
+Returns hierarchical structure, table of contents, and metadata for navigation.
+
+**Key Differences:**
+- **Content**: Use for reading actual text (scriptures, talks, articles) and extracting media URLs
+- **Dynamic**: Use for browsing structure (conference sessions, scripture books, chapter lists)
+- **Performance**: Dynamic is faster for navigation since it doesn't include full text content
+- **Metadata**: Dynamic includes thumbnails, speakers, dates, and descriptions
+- **Media**: Audio, video, and image URLs are available in content endpoint metadata
+
+## Media Support
+
+The MCP server can extract and provide direct access to:
+- **Audio**: Conference talk recordings, music, spoken content
+- **Video**: Conference sessions, instructional videos
+- **Images**: Illustrations, photographs, diagrams, thumbnails
+
+Media URLs are provided for direct access - no streaming through the MCP server itself.
+
+No authentication is required for either endpoint.
 
 ## License
 

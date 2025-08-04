@@ -12,6 +12,8 @@ import {
 import { fetchContentTool } from "./tools/fetch.js";
 import { searchGospelLibraryTool } from "./tools/search.js";
 import { exploreEndpointsTool } from "./tools/explore.js";
+import { browseStructureTool } from "./tools/browse.js";
+import { fetchMediaTool } from "./tools/media.js";
 import { contentResources } from "./resources/content.js";
 
 const server = new Server(
@@ -33,6 +35,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       fetchContentTool.definition,
       searchGospelLibraryTool.definition,
       exploreEndpointsTool.definition,
+      browseStructureTool.definition,
+      fetchMediaTool.definition,
     ],
   };
 });
@@ -59,6 +63,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await searchGospelLibraryTool.handler(args as any);
       case "explore_endpoints":
         return await exploreEndpointsTool.handler(args as any);
+      case "browse_structure":
+        return await browseStructureTool.handler(args as any);
+      case "fetch_media":
+        return await fetchMediaTool.handler(args as any);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
