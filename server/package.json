@@ -1,6 +1,6 @@
 {
   "name": "ldsmcp",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Intelligent MCP server for searching and accessing LDS Church Gospel Library content with AI-powered routing",
   "type": "module",
   "main": "./build/index.js",
@@ -31,7 +31,6 @@
     "url": "https://github.com/mattnicolaysen/ldsmcp.git"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
